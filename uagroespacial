@@ -1,0 +1,911 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>UAGro & NASA Space Workshop - Trayectorias Estelares</title>
+  <style>
+    :root {
+      --uagro-blue: #1b365d;
+      --uagro-blue-dark: #0b192c;
+      --uagro-gold: #c59b27;
+      --uagro-red: #c53030;
+      --space-dark: #0f172a;
+      --bg: #090d16;
+      --panel-bg: #1e293b;
+      --text: #f8fafc;
+      --text-muted: #94a3b8;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+      background-color: var(--bg);
+      color: var(--text);
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    /* Encabezado Misión Espacial UAGro & NASA */
+    .header-uagro {
+      background: linear-gradient(135deg, var(--uagro-blue-dark), var(--uagro-blue));
+      color: #ffffff;
+      width: 100%;
+      max-width: 1000px;
+      padding: 20px;
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      gap: 20px;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.4);
+      border-bottom: 4px solid var(--uagro-gold);
+      margin-bottom: 20px;
+    }
+
+    .logo-uagro {
+      height: 85px;
+      width: auto;
+      object-fit: contain;
+      background: #ffffff;
+      padding: 4px;
+      border-radius: 50%;
+      border: 2px solid var(--uagro-gold);
+    }
+
+    .header-titles h2 {
+      font-size: 0.95rem;
+      font-weight: 600;
+      color: var(--uagro-gold);
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      margin-bottom: 4px;
+    }
+
+    .header-titles h1 {
+      font-size: 1.35rem;
+      font-weight: 700;
+    }
+
+    .author-subtitle {
+      font-size: 0.9rem;
+      font-weight: 400;
+      color: #cbd5e1;
+      font-style: italic;
+      margin-top: 6px;
+    }
+
+    /* Contenedor Principal */
+    .container {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 20px;
+      justify-content: center;
+      max-width: 1000px;
+      width: 100%;
+    }
+
+    .canvas-card {
+      background: var(--panel-bg);
+      padding: 20px;
+      border-radius: 12px;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      position: relative;
+      border: 1px solid #334155;
+    }
+
+    /* Barra de Controles de Zoom */
+    .zoom-toolbar {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 12px;
+      background: #0f172a;
+      padding: 6px 12px;
+      border-radius: 20px;
+      border: 1px solid #475569;
+    }
+
+    .zoom-btn {
+      background: var(--uagro-blue);
+      color: white;
+      border: none;
+      padding: 6px 12px;
+      font-size: 0.9rem;
+      font-weight: bold;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+
+    .zoom-btn:hover {
+      background: #2563eb;
+    }
+
+    .zoom-info {
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: var(--uagro-gold);
+      min-width: 90px;
+      text-align: center;
+    }
+
+    canvas {
+      border: 2px solid #475569;
+      border-radius: 8px;
+      cursor: crosshair;
+      background-color: #050b14;
+      touch-action: none;
+    }
+
+    .controls-card {
+      background: var(--panel-bg);
+      padding: 20px;
+      border-radius: 12px;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+      flex: 1;
+      min-width: 320px;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      border-top: 4px solid var(--uagro-gold);
+      border: 1px solid #334155;
+    }
+
+    .control-group {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    label {
+      font-weight: 600;
+      font-size: 0.9rem;
+      display: flex;
+      justify-content: space-between;
+      color: #cbd5e1;
+    }
+
+    input[type="range"] {
+      width: 100%;
+      accent-color: var(--uagro-gold);
+      cursor: pointer;
+    }
+
+    /* Caja de Ecuaciones y Tabla */
+    .equations-box {
+      background-color: #0f172a;
+      border: 1px solid #334155;
+      border-left: 5px solid var(--uagro-gold);
+      padding: 16px;
+      border-radius: 0 8px 8px 0;
+      margin-top: 10px;
+    }
+
+    .equation-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-top: 15px;
+      margin-bottom: 6px;
+    }
+
+    .equation-title {
+      font-size: 0.8rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--uagro-gold);
+      font-weight: 700;
+    }
+
+    .equation-value {
+      font-family: 'Consolas', 'Courier New', monospace;
+      font-size: 1.15rem;
+      font-weight: bold;
+      color: #38bdf8;
+      margin-top: 4px;
+      margin-bottom: 8px;
+      background: #1e293b;
+      padding: 8px;
+      border-radius: 4px;
+      border: 1px solid #475569;
+    }
+
+    /* Control Checkbox */
+    .toggle-label {
+      font-size: 0.82rem;
+      font-weight: 600;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      color: #e2e8f0;
+      background: #334155;
+      padding: 3px 8px;
+      border-radius: 4px;
+      user-select: none;
+    }
+
+    .toggle-label input {
+      accent-color: var(--uagro-gold);
+      cursor: pointer;
+      width: 15px;
+      height: 15px;
+    }
+
+    /* Estilos de la Tabla de Valores */
+    .values-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 8px;
+      background: #1e293b;
+      font-size: 0.85rem;
+      border-radius: 6px;
+      overflow: hidden;
+      border: 1px solid #475569;
+    }
+
+    .values-table th {
+      background-color: var(--uagro-blue);
+      color: #ffffff;
+      padding: 6px 8px;
+      text-align: center;
+      font-weight: 600;
+    }
+
+    .values-table td {
+      padding: 6px 8px;
+      text-align: center;
+      border-bottom: 1px solid #334155;
+      font-family: 'Consolas', 'Courier New', monospace;
+    }
+
+    .table-note {
+      font-size: 0.78rem;
+      color: #fde047;
+      margin-top: 6px;
+      font-style: italic;
+      background: #172554;
+      padding: 6px;
+      border-radius: 4px;
+      border: 1px solid #1e40af;
+    }
+
+    .instructions {
+      font-size: 0.85rem;
+      color: var(--text-muted);
+      margin-top: 10px;
+      text-align: center;
+    }
+
+    /* ====================================================== */
+    /* MÓDULO DE RETOS ESPACIALES NASA & UAGro               */
+    /* ====================================================== */
+    .evaluacion-card {
+      background: var(--panel-bg);
+      width: 100%;
+      max-width: 1000px;
+      margin-top: 25px;
+      padding: 24px;
+      border-radius: 12px;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+      border-top: 4px solid var(--uagro-gold);
+      border: 1px solid #334155;
+    }
+
+    .evaluacion-header {
+      margin-bottom: 20px;
+      border-bottom: 2px solid #334155;
+      padding-bottom: 12px;
+    }
+
+    .evaluacion-header h2 {
+      color: var(--uagro-gold);
+      font-size: 1.3rem;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .evaluacion-header p {
+      color: var(--text-muted);
+      font-size: 0.9rem;
+      margin-top: 4px;
+    }
+
+    .questions-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(290px, 1fr));
+      gap: 18px;
+    }
+
+    .question-card {
+      background: #0f172a;
+      border: 1px solid #334155;
+      border-radius: 10px;
+      padding: 18px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    .question-card:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 15px rgba(56, 189, 248, 0.1);
+      border-color: #475569;
+    }
+
+    .badge {
+      align-self: flex-start;
+      background-color: var(--uagro-blue);
+      color: var(--uagro-gold);
+      font-size: 0.75rem;
+      font-weight: 700;
+      padding: 4px 10px;
+      border-radius: 12px;
+      margin-bottom: 12px;
+      letter-spacing: 0.5px;
+      text-transform: uppercase;
+      border: 1px solid #1e40af;
+    }
+
+    .question-text {
+      font-weight: 600;
+      color: var(--text);
+      font-size: 0.92rem;
+      line-height: 1.45;
+      margin-bottom: 14px;
+    }
+
+    .btn-toggle-answer {
+      background-color: var(--uagro-red);
+      color: #ffffff;
+      border: none;
+      padding: 9px 14px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 0.85rem;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      transition: background-color 0.2s, transform 0.1s;
+    }
+
+    .btn-toggle-answer:hover {
+      background-color: #9b2c2c;
+    }
+
+    .btn-toggle-answer:active {
+      transform: scale(0.98);
+    }
+
+    .answer-box {
+      background-color: #1e293b;
+      border-left: 4px solid var(--uagro-gold);
+      border-right: 1px solid #475569;
+      border-top: 1px solid #475569;
+      border-bottom: 1px solid #475569;
+      padding: 12px;
+      border-radius: 0 6px 6px 0;
+      margin-top: 12px;
+      font-size: 0.88rem;
+      color: #e2e8f0;
+      line-height: 1.5;
+      animation: fadeIn 0.3s ease-in-out;
+    }
+
+    .answer-box p {
+      margin-bottom: 6px;
+    }
+
+    .answer-box p:last-child {
+      margin-bottom: 0;
+    }
+
+    .hidden {
+      display: none;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(-5px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    @media (max-width: 600px) {
+      .header-uagro {
+        flex-direction: column;
+        text-align: center;
+      }
+      .logo-uagro {
+        height: 70px;
+      }
+      .evaluacion-card {
+        padding: 16px;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Encabezado Misión Espacial UAGro & NASA -->
+  <header class="header-uagro">
+    <img src="uagro-logo.png" alt="Escudo UAGro" class="logo-uagro">
+    <div class="header-titles">
+      <h2>UAGro • Taller Aeroespacial NASA</h2>
+      <h1>Simulador de Trayectorias Rectilíneas en el Espacio</h1>
+      <p class="author-subtitle">Exploración del Comportamiento de la Recta Aplicada a Navegación Estelar y Órbitas</p>
+    </div>
+  </header>
+
+  <div class="container">
+    <div class="canvas-card">
+      <div class="zoom-toolbar">
+        <button id="zoomOutBtn" class="zoom-btn" title="Alejar radar estelar">🔭 -</button>
+        <span id="zoomLevelText" class="zoom-info">Radar: ±10 UA</span>
+        <button id="zoomInBtn" class="zoom-btn" title="Acercar radar estelar">🔭 +</button>
+        <button id="resetZoomBtn" class="zoom-btn" style="background:#475569;" title="Restablecer cuadrante">↺ Reset</button>
+      </div>
+
+      <canvas id="gridCanvas" width="460" height="460"></canvas>
+      <p class="instructions">Arrastra la Sonda 🚀 o usa los mandos para <b>trazar la trayectoria</b> en el cuadrante estelar.</p>
+    </div>
+
+    <div class="controls-card">
+      <div class="control-group">
+        <label for="slopeSlider">
+          Vector Pendiente ($m$ - Tasa de ascenso): <span id="slopeValue" style="color:var(--uagro-gold)">1.50</span>
+        </label>
+        <input type="range" id="slopeSlider" min="-10" max="10" step="0.1" value="1.5">
+      </div>
+
+      <div class="control-group">
+        <label for="x1Slider">
+          Coordenada x₁ (Distancia orbital X): <span id="x1Value" style="color:#38bdf8">2.00</span>
+        </label>
+        <input type="range" id="x1Slider" min="-25" max="25" step="0.5" value="2">
+      </div>
+
+      <div class="control-group">
+        <label for="y1Slider">
+          Coordenada y₁ (Altitud estelar Y): <span id="y1Value" style="color:#38bdf8">1.00</span>
+        </label>
+        <input type="range" id="y1Slider" min="-25" max="25" step="0.5" value="1">
+      </div>
+
+      <div class="equations-box">
+        <div class="equation-title">Modelo Punto-Pendiente (Vectorial)</div>
+        <div class="equation-value" id="pointSlopeEq">(y - y₁) = m(x - x₁)</div>
+
+        <!-- Encabezado Forma Pendiente-Ordenada -->
+        <div class="equation-header">
+          <div class="equation-title">Ecuación Pendiente-Ordenada Base ($y = mx + b$)</div>
+          <label class="toggle-label">
+            <input type="checkbox" id="toggleSlopeIntercept">
+            Activar Radar
+          </label>
+        </div>
+        <div class="equation-value" id="slopeInterceptEq" style="display: none;">y = mx + b</div>
+
+        <!-- Encabezado Tabla de Valores -->
+        <div class="equation-header">
+          <div class="equation-title">Bitácora de Navegación (x, y)</div>
+          <label class="toggle-label">
+            <input type="checkbox" id="toggleTable">
+            Ver Bitácora
+          </label>
+        </div>
+
+        <div id="tableContainer" style="display: none;">
+          <table class="values-table">
+            <thead>
+              <tr>
+                <th>Unidad X</th>
+                <th>Altitud Y</th>
+                <th>Deriva (Δy)</th>
+              </tr>
+            </thead>
+            <tbody id="tableBody"></tbody>
+          </table>
+          <p class="table-note" id="tableNote"></p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SECCIÓN DE RETOS ESPACIALES (NASA & UAGro) -->
+  <section class="evaluacion-card">
+    <div class="evaluacion-header">
+      <h2>🚀 Centro de Control: Retos de Navegación Espacial</h2>
+      <p>Resuelve los siguientes escenarios astromatemáticos inspirados en operaciones de la NASA para comprobar tu dominio de la recta.</p>
+    </div>
+
+    <div class="questions-grid">
+      <!-- Reto 1 -->
+      <div class="question-card">
+        <span class="badge">Misión 1 • Reingreso Atmosférico</span>
+        <p class="question-text">
+          Durante la reingreso de una cápsula, la pendiente de descenso es <b>m = -1</b> y cruza el eje de referencia en <b>b = -3</b>. ¿Cuál es la ecuación de su trayectoria y qué indica su inclinación?
+        </p>
+        <button class="btn-toggle-answer" onclick="toggleAnswer('ans1')">
+          <span>👁️ Ver Solución de Vuelo</span>
+        </button>
+        <div id="ans1" class="answer-box hidden">
+          <p><b>Ecuación:</b> <code style="color:var(--uagro-gold)">y = -x - 3</code></p>
+          <p><b>Análisis:</b> La trayectoria es <i>descendente</i> (decreciente), perdiendo altitud a medida que avanza horizontalmente hacia el planeta.</p>
+        </div>
+      </div>
+
+      <!-- Reto 2 -->
+      <div class="question-card">
+        <span class="badge">Misión 2 • Propulsión Lineal</span>
+        <p class="question-text">
+          Un cohete parte directamente desde el centro de control en el origen (<b>b = 0</b>) con un vector de empuje positivo <b>m = 2</b>. ¿Cómo se define su ruta algebraica en el espacio?
+        </p>
+        <button class="btn-toggle-answer" onclick="toggleAnswer('ans2')">
+          <span>👁️ Ver Solución de Vuelo</span>
+        </button>
+        <div id="ans2" class="answer-box hidden">
+          <p><b>Ecuación:</b> <code style="color:var(--uagro-gold)">y = 2x</code></p>
+          <p><b>Análisis:</b> Es una línea de ascenso directo que cruza (0,0); por cada unidad horizontal avanzada, la nave gana 2 unidades de altitud.</p>
+        </div>
+      </div>
+
+      <!-- Reto 3 -->
+      <div class="question-card">
+        <span class="badge">Misión 3 • Órbita Estacionaria</span>
+        <p class="question-text">
+          Una estación espacial orbita a una altitud perfectamente constante de <b>b = 4</b> con una inclinación nula (<b>m = 0</b>). ¿Cómo se representa su trayectoria en el cuadrante?
+        </p>
+        <button class="btn-toggle-answer" onclick="toggleAnswer('ans3')">
+          <span>👁️ Ver Solución de Vuelo</span>
+        </button>
+        <div id="ans3" class="answer-box hidden">
+          <p><b>Ecuación:</b> <code style="color:var(--uagro-gold)">y = 4</code></p>
+          <p><b>Análisis:</b> Representa una línea <i>horizontal</i> paralela al eje X, manteniendo una altura invariable sin pendiente de subida ni bajada.</p>
+        </div>
+      </div>
+
+      <!-- Reto 4 -->
+      <div class="question-card">
+        <span class="badge">Misión 4 • Corrección de Rumbo</span>
+        <p class="question-text">
+          La sonda cruza el punto de control estelar <b>A(2, 3)</b> con un vector de corrección <b>m = -2</b>. ¿Cómo se plantea esta trayectoria usando el modelo punto-pendiente <b>(y - y₁) = m(x - x₁)</b>?
+        </p>
+        <button class="btn-toggle-answer" onclick="toggleAnswer('ans4')">
+          <span>👁️ Ver Solución de Vuelo</span>
+        </button>
+        <div id="ans4" class="answer-box hidden">
+          <p><b>Ecuación:</b> <code style="color:var(--uagro-gold)">(y - 3) = -2(x - 2)</code></p>
+          <p><b>Análisis:</b> Sustitución directa de las coordenadas de la sonda y el vector de inclinación en el modelo matemático estándar.</p>
+        </div>
+      </div>
+
+      <!-- Reto 5 -->
+      <div class="question-card">
+        <span class="badge">Misión 5 • Tasa Interestelar (Δy)</span>
+        <p class="question-text">
+          En la bitácora de navegación, al avanzar de 1 en 1 unidad astronómica en X, notas que el incremento de altitud Y registra siempre <b>Δy = +3.5</b>. ¿Cuál es el valor del vector pendiente <b>m</b>?
+        </p>
+        <button class="btn-toggle-answer" onclick="toggleAnswer('ans5')">
+          <span>👁️ Ver Solución de Vuelo</span>
+        </button>
+        <div id="ans5" class="answer-box hidden">
+          <p><b>Vector Pendiente:</b> <code style="color:var(--uagro-gold)">m = 3.50</code></p>
+          <p><b>Análisis:</b> El parámetro m representa directamente la tasa de cambio vertical por cada unidad unitaria de avance horizontal.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <script>
+    const canvas = document.getElementById('gridCanvas');
+    const ctx = canvas.getContext('2d');
+
+    const slopeSlider = document.getElementById('slopeSlider');
+    const x1Slider = document.getElementById('x1Slider');
+    const y1Slider = document.getElementById('y1Slider');
+
+    const slopeValueText = document.getElementById('slopeValue');
+    const x1ValueText = document.getElementById('x1Value');
+    const y1ValueText = document.getElementById('y1Value');
+
+    const pointSlopeEqText = document.getElementById('pointSlopeEq');
+    const slopeInterceptEqText = document.getElementById('slopeInterceptEq');
+    const toggleSlopeIntercept = document.getElementById('toggleSlopeIntercept');
+
+    const toggleTable = document.getElementById('toggleTable');
+    const tableContainer = document.getElementById('tableContainer');
+    const tableBody = document.getElementById('tableBody');
+    const tableNote = document.getElementById('tableNote');
+
+    const zoomInBtn = document.getElementById('zoomInBtn');
+    const zoomOutBtn = document.getElementById('zoomOutBtn');
+    const resetZoomBtn = document.getElementById('resetZoomBtn');
+    const zoomLevelText = document.getElementById('zoomLevelText');
+
+    let gridRange = 10;
+    let width = canvas.width;
+    let height = canvas.height;
+    let scale = width / (2 * gridRange);
+
+    let m = parseFloat(slopeSlider.value);
+    let x1 = parseFloat(x1Slider.value);
+    let y1 = parseFloat(y1Slider.value);
+
+    let isDragging = false;
+    let initialTouchDist = null;
+
+    function updateScale() {
+      scale = width / (2 * gridRange);
+      zoomLevelText.textContent = `Radar: ±${gridRange} UA`;
+    }
+
+    function zoomIn() {
+      if (gridRange > 4) { gridRange -= 2; updateScale(); render(); }
+    }
+
+    function zoomOut() {
+      if (gridRange < 40) { gridRange += 2; updateScale(); render(); }
+    }
+
+    function resetZoom() {
+      gridRange = 10; updateScale(); render();
+    }
+
+    zoomInBtn.addEventListener('click', zoomIn);
+    zoomOutBtn.addEventListener('click', zoomOut);
+    resetZoomBtn.addEventListener('click', resetZoom);
+
+    canvas.addEventListener('wheel', (e) => {
+      e.preventDefault();
+      if (e.deltaY < 0) zoomIn(); else zoomOut();
+    }, { passive: false });
+
+    toggleSlopeIntercept.addEventListener('change', (e) => {
+      slopeInterceptEqText.style.display = e.target.checked ? 'block' : 'none';
+    });
+
+    toggleTable.addEventListener('change', (e) => {
+      tableContainer.style.display = e.target.checked ? 'block' : 'none';
+      if (e.target.checked) updateTable();
+    });
+
+    function toScreenX(x) { return width / 2 + x * scale; }
+    function toScreenY(y) { return height / 2 - y * scale; }
+    function toMathX(px) { return (px - width / 2) / scale; }
+    function toMathY(py) { return (height / 2 - py) / scale; }
+
+    function getGridStep() {
+      if (gridRange <= 12) return 1;
+      if (gridRange <= 24) return 2;
+      return 5;
+    }
+
+    function drawGrid() {
+      ctx.clearRect(0, 0, width, height);
+      const step = getGridStep();
+
+      // Cuadrícula espacial con estrellas sutiles y líneas de radar
+      ctx.strokeStyle = '#1e293b';
+      ctx.lineWidth = 1;
+
+      for (let i = -gridRange; i <= gridRange; i += step) {
+        ctx.beginPath();
+        ctx.moveTo(toScreenX(i), 0);
+        ctx.lineTo(toScreenX(i), height);
+        ctx.stroke();
+
+        ctx.beginPath();
+        ctx.moveTo(0, toScreenY(i));
+        ctx.lineTo(width, toScreenY(i));
+        ctx.stroke();
+      }
+
+      // Ejes coordenados principales
+      ctx.strokeStyle = '#38bdf8';
+      ctx.lineWidth = 2;
+
+      ctx.beginPath();
+      ctx.moveTo(0, toScreenY(0));
+      ctx.lineTo(width, toScreenY(0));
+      ctx.stroke();
+
+      ctx.beginPath();
+      ctx.moveTo(toScreenX(0), 0);
+      ctx.lineTo(toScreenX(0), height);
+      ctx.stroke();
+
+      ctx.fillStyle = '#94a3b8';
+      ctx.font = '10px sans-serif';
+      for (let i = -gridRange; i <= gridRange; i += step) {
+        if (i !== 0) {
+          ctx.fillText(i, toScreenX(i) - 6, toScreenY(0) + 14);
+          ctx.fillText(i, toScreenX(0) + 6, toScreenY(i) + 4);
+        }
+      }
+    }
+
+    function drawLineAndPoint() {
+      const b = y1 - m * x1;
+      const xStart = -gridRange;
+      const yStart = m * xStart + b;
+      const xEnd = gridRange;
+      const yEnd = m * xEnd + b;
+
+      // Línea de trayectoria del cohete / nave
+      ctx.strokeStyle = '#38bdf8';
+      ctx.lineWidth = 3.5;
+      ctx.beginPath();
+      ctx.moveTo(toScreenX(xStart), toScreenY(yStart));
+      ctx.lineTo(toScreenX(xEnd), toScreenY(yEnd));
+      ctx.stroke();
+
+      // Sonda o punto de control (A)
+      ctx.fillStyle = '#c59b27';
+      ctx.beginPath();
+      ctx.arc(toScreenX(x1), toScreenY(y1), 8, 0, 2 * Math.PI);
+      ctx.fill();
+
+      ctx.strokeStyle = '#ffffff';
+      ctx.lineWidth = 2;
+      ctx.stroke();
+
+      ctx.fillStyle = '#f8fafc';
+      ctx.font = 'bold 12px sans-serif';
+      ctx.fillText(`🚀 Sonda(${x1.toFixed(1)}, ${y1.toFixed(1)})`, toScreenX(x1) + 10, toScreenY(y1) - 10);
+    }
+
+    function updateEquations() {
+      const b = y1 - m * x1;
+
+      slopeValueText.textContent = m.toFixed(2);
+      x1ValueText.textContent = x1.toFixed(1);
+      y1ValueText.textContent = y1.toFixed(1);
+
+      let yPart = y1 >= 0 ? `(y - ${y1.toFixed(1)})` : `(y + ${Math.abs(y1).toFixed(1)})`;
+      let xPart = x1 >= 0 ? `(x - ${x1.toFixed(1)})` : `(x + ${Math.abs(x1).toFixed(1)})`;
+      pointSlopeEqText.textContent = `${yPart} = ${m.toFixed(2)}${xPart}`;
+
+      let bPart = b >= 0 ? ` + ${b.toFixed(2)}` : ` - ${Math.abs(b).toFixed(2)}`;
+      slopeInterceptEqText.textContent = `y = ${m.toFixed(2)}x${bPart}`;
+    }
+
+    function updateTable() {
+      if (!toggleTable.checked) return;
+
+      const b = y1 - m * x1;
+      tableBody.innerHTML = '';
+
+      const startX = Math.round(x1) - 2;
+
+      for (let i = 0; i < 5; i++) {
+        const currentX = startX + i;
+        const currentY = m * currentX + b;
+        const tr = document.createElement('tr');
+
+        if (Math.abs(currentX - x1) < 0.1) {
+          tr.style.backgroundColor = '#172554';
+          tr.style.fontWeight = 'bold';
+        }
+
+        const deltaYText = i === 0 ? '-' : (m >= 0 ? `+${m.toFixed(2)}` : `${m.toFixed(2)}`);
+
+        tr.innerHTML = `
+          <td>${currentX}</td>
+          <td>${currentY.toFixed(2)}</td>
+          <td style="color: ${m >= 0 ? '#4ade80' : '#f87171'}; font-weight: bold;">${deltaYText}</td>
+        `;
+        tableBody.appendChild(tr);
+      }
+
+      tableNote.textContent = `📌 Parámetro de Vuelo: Al avanzar +1 en X, la altitud Y cambia en m = ${m.toFixed(2)}.`;
+    }
+
+    function render() {
+      drawGrid();
+      drawLineAndPoint();
+      updateEquations();
+      updateTable();
+    }
+
+    slopeSlider.addEventListener('input', (e) => { m = parseFloat(e.target.value); render(); });
+    x1Slider.addEventListener('input', (e) => { x1 = parseFloat(e.target.value); render(); });
+    y1Slider.addEventListener('input', (e) => { y1 = parseFloat(e.target.value); render(); });
+
+    function handlePointerDown(px, py) {
+      const mx = toMathX(px);
+      const my = toMathY(py);
+      const clickTolerance = gridRange * 0.12;
+      if (Math.hypot(mx - x1, my - y1) < clickTolerance) isDragging = true;
+    }
+
+    function handlePointerMove(px, py) {
+      if (isDragging) {
+        x1 = Math.max(-25, Math.min(25, toMathX(px)));
+        y1 = Math.max(-25, Math.min(25, toMathY(py)));
+        x1Slider.value = x1;
+        y1Slider.value = y1;
+        render();
+      }
+    }
+
+    canvas.addEventListener('mousedown', (e) => {
+      const rect = canvas.getBoundingClientRect();
+      handlePointerDown(e.clientX - rect.left, e.clientY - rect.top);
+    });
+
+    canvas.addEventListener('mousemove', (e) => {
+      const rect = canvas.getBoundingClientRect();
+      handlePointerMove(e.clientX - rect.left, e.clientY - rect.top);
+    });
+
+    window.addEventListener('mouseup', () => { isDragging = false; });
+
+    canvas.addEventListener('touchstart', (e) => {
+      const rect = canvas.getBoundingClientRect();
+      if (e.touches.length === 1) {
+        const touch = e.touches[0];
+        handlePointerDown(touch.clientX - rect.left, touch.clientY - rect.top);
+      } else if (e.touches.length === 2) {
+        initialTouchDist = Math.hypot(
+          e.touches[0].clientX - e.touches[1].clientX,
+          e.touches[0].clientY - e.touches[1].clientY
+        );
+      }
+    }, {passive: true});
+
+    canvas.addEventListener('touchmove', (e) => {
+      const rect = canvas.getBoundingClientRect();
+      if (e.touches.length === 1) {
+        const touch = e.touches[0];
+        handlePointerMove(touch.clientX - rect.left, touch.clientY - rect.top);
+      } else if (e.touches.length === 2 && initialTouchDist) {
+        const currentDist = Math.hypot(
+          e.touches[0].clientX - e.touches[1].clientX,
+          e.touches[0].clientY - e.touches[1].clientY
+        );
+        const diff = currentDist - initialTouchDist;
+        if (Math.abs(diff) > 30) {
+          if (diff > 0) zoomIn(); else zoomOut();
+          initialTouchDist = currentDist;
+        }
+      }
+    }, {passive: true});
+
+    window.addEventListener('touchend', () => { 
+      isDragging = false; 
+      initialTouchDist = null;
+    });
+
+    function toggleAnswer(id) {
+      const answerBox = document.getElementById(id);
+      const button = answerBox.previousElementSibling;
+      
+      if (answerBox.classList.contains('hidden')) {
+        answerBox.classList.remove('hidden');
+        button.innerHTML = '<span>🙈 Ocultar Solución de Vuelo</span>';
+        button.style.backgroundColor = '#475569';
+      } else {
+        answerBox.classList.add('hidden');
+        button.innerHTML = '<span>👁️ Ver Solución de Vuelo</span>';
+        button.style.backgroundColor = 'var(--uagro-red)';
+      }
+    }
+
+    updateScale();
+    render();
+  </script>
+</body>
+</html>
